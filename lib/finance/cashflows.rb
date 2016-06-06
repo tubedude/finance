@@ -9,6 +9,8 @@ module Finance
   # Provides methods for working with cash flows (collections of transactions)
   # @api public
   module Cashflow
+    SECONDS_IN_YEAR = Flt::DecNum.new(31536000.to_s) # 365 * 24 * 60 * 60
+
     # Base class for working with Newton's Method.
     # @api private
     class Function
@@ -111,11 +113,11 @@ module Finance
     #   @transactions.xnpv(0.6).round(2) #=> -937.41
     # @api public
     def xnpv(rate)
-      rate  = Flt::DecNum.new(rate.to_s)
       start = self[0].date
+      one_plus_rate  = 1 + Flt::DecNum.new(rate.to_s)
 
       self.inject(0) do |sum, t|
-        n = t.amount / ( (1 + rate) ** ((t.date-start) / Flt::DecNum.new(31536000.to_s))) # 365 * 86400
+        n = t.amount / ( one_plus_rate ** ((t.date-start) / SECONDS_IN_YEAR))
         sum + n
       end
     end
